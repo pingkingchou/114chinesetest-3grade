@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>114年縣市學生學習能力檢測 三年級國語文科</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            line-height: 1.8;
+        }
+        .question-group {
+            border-left: 4px solid #e5e7eb; /* default border */
+            transition: border-color 0.3s;
+        }
+        .correct {
+            border-color: #22c55e; /* green-500 */
+        }
+        .incorrect {
+            border-color: #ef4444; /* red-500 */
+        }
+        .article-box {
+            background-color: #f3f4f6; /* gray-100 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.75rem;
+        }
+        .article-box h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e3a8a; /* blue-900 */
+        }
+        .article-box p {
+            text-indent: 2em;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center bg-white p-6 rounded-xl shadow-md mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-blue-800">114年學力檢測測驗</h1>
+            <p class="text-lg md:text-xl text-gray-600 mt-2">三年級國語文科</p>
+        </header>
+
+        <!-- Student Info Section -->
+        <div id="student-info" class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">考生資訊</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="student-class" class="block text-sm font-medium text-gray-700 mb-1">班級</label>
+                    <input type="text" id="student-class" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="請輸入班級，例如：三年一班">
+                </div>
+                <div>
+                    <label for="student-name" class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                    <input type="text" id="student-name" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="請輸入姓名">
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Form -->
+        <form id="quiz-form">
+            <div id="quiz-container" class="space-y-6">
+                <!-- Questions will be injected here by JavaScript -->
+            </div>
+            <div class="mt-8 text-center">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    送出測驗
+                </button>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden mt-8 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-center mb-4">測驗結果</h2>
+            <div id="score" class="text-4xl font-bold text-center text-blue-700 mb-2"></div>
+            <div id="summary" class="text-center text-lg mb-8"></div>
+            <div class="flex justify-center items-center gap-4">
+                 <button id="download-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    下載錯誤報告 (PDF)
+                </button>
+                <button id="retry-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    再答一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizContainer = document.getElementById('quiz-container');
+        const form = document.getElementById('quiz-form');
+        const resultsContainer = document.getElementById('results');
+        const scoreEl = document.getElementById('score');
+        const summaryEl = document.getElementById('summary');
+        const downloadBtn = document.getElementById('download-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const studentInfoContainer = document.getElementById('student-info');
+
+        const quizData = [
+            { type: 'header', content: '一、語文知識題' },
+            { question: '1. 下列哪一個選項「」內的字讀音相同？', options: ['「耀」眼的陽光照在溪邊，有一隻羚羊在草叢間跳「躍」。', '警察在河邊的「芒」草堆裡，捉捕逃「亡」已久的殺人犯。', '經過了「漫」長的等待，我們的車才緩「慢」的向前移動。', '為了領到演唱會的入場「券」，我再疲「倦」也會去排隊。'], answer: 3 },
+            { question: '2. 下列哪一個選項，「」內的注音和箭頭後的國字搭配正確？', options: ['「ㄒㄧㄥˋ」福生活 → 幸', '耐心「ㄆㄟˊ」伴 → 部', '成「ㄐㄧ」優良 → 積', '越過山「ㄌㄧㄥˇ」 → 波'], answer: 1 },
+            { question: '3. 我一路被狗追「」，害怕到連頭都「」回。上面句子的「」內，按照順序應該填入哪些國字？', options: ['趕、敢', '敢、趕', '趕、趕', '敢、敢'], answer: 1 },
+            { question: '4. 下列哪一個選項詞語的解釋是「形容專心注視的樣子」？', options: ['耳聰目明', '目中無人', '一目了然', '目不轉睛'], answer: 4 },
+            { question: '5. 下列哪一個選項和「畫蛇添足」的意思最接近？', options: ['得寸進尺', '一舉兩得', '多此一舉', '進退兩難'], answer: 3 },
+            { question: '6. 下列「」中的詞語哪一個是名詞？', options: ['妹妹的「模樣」很可愛。', '小明在操場上「奔跑」。', '王老師長得很「美麗」。', '爸爸正在「修理」電燈。'], answer: 1 },
+            { question: '7. 感嘆句是用來表達強烈情感的句子。下列哪一個選項是感嘆句？', options: ['請你不要亂丟垃圾！', '這是我的鉛筆盒嗎？', '你真的是太可惡了！', '快點把垃圾撿起來。'], answer: 3 },
+            { question: '8. 他十分省錢節省，出門買東西前會先將要買的物品寫下來，從不亂買。上面的句子刪除哪個詞語後，會讓句子變得最合理、最通順？', options: ['十分', '省錢', '出門', '物品'], answer: 2 },
+            { question: '9. 弟弟一下看電視一下上網玩遊戲一刻都沒有休息。上面句子的□裡，按照順序填入下列哪一組標點符號最合適？', options: ['，、，、。', '！、，、！', '。、。、。', '，、。、。'], answer: 1 },
+            { question: '10. 我的身體很健康，連感冒都不曾來找我玩。上面的句子把「感冒」當作人來寫，這樣的表現方法叫作「擬人法」。下列哪一個句子也使用了「擬人法」？', options: ['在颱風一陣拳打腳踢後，街上的招牌幾乎都掉了下來。', '姊姊雖然外表溫和柔弱，但大吼起來連地板都會震動。', '游泳池裡的哥哥就像魚兒一樣，看起來既快樂又逍遙。', '考試時全班鴉雀無聲，連一根針掉在地上都能被聽見。'], answer: 1 },
+            { question: '11. 爸爸的肚子圓圓的,像吹滿氣的球。上面的句子把「圓圓的肚子」比喻成「吹滿氣的球」，這種寫作手法就是「譬喻法」。下列哪一個句子也使用了「譬喻法」？', options: ['透明的雨滴像斷了線的珠子不斷的往下落。', '哥哥長得好像爸爸,尤其那雙眼睛和鼻子。', '街道兩旁的小樹奮力的抵抗著強風的侵襲。', '我喜歡吃的水果很多,像是草莓和哈密瓜。'], answer: 1 },
+            { question: '12. 我們將作文「參觀海生館」的四個段落，打亂成下面的甲、乙、丙、丁...請將甲、乙、丙、丁按照順序排列好？<br>甲、從臺灣館的後門離開，我們去到世界館...<br>乙、接著我們到了最可愛的企鵝館...<br>丙、到了海生館，我們一走進大門便是臺灣館...<br>丁、離開前我們還依依不捨的向企鵝們道別...', options: ['丙→甲→乙→丁', '丙→丁→乙→甲', '甲→乙→丁→丙', '甲→丙→乙→丁'], answer: 1 },
+            { type: 'header', content: '二、閱讀理解題' },
+            { type: 'article', content: '<p>百慕達三角洲是三角形的海洋區域，面積約為116 萬平方公里。這片海域過去因為很多船隻、飛機離奇失蹤，因此出現各種神祕傳說。有人說是外星人搞鬼，也有人說是奇特的能量讓時空扭曲，才出現一連串怪事。不過，根據科學家研究，百慕達三角洲發生船隻和飛機失蹤的次數並不多比其他危險海域多；而且跟其他海域一樣，這些事件的發生通常跟天氣不穩定有關。</p>'},
+            { question: '13. 請問這段文字屬於下列哪一種文體？', options: ['童詩', '說明文', '記敘文', '應用文'], answer: 2 },
+            { question: '14. 「這一切都是真實的，並非是做夢。」上面句子的「實」與下列哪一個選項中的「實」，意思最接近？', options: ['他長期運動,所以鍛鍊出一身結「實」的肌肉。', '這棵樹上結了許多果「實」,竟然沒有人去採。', '請你給我一個確「實」的答案,不要變來變去。', '閱讀不但能充「實」知識,還能提升寫作能力。'], answer: 3 },
+            { question: '15. 媽媽打電話提醒爸爸，桌上的蛋糕是哥哥要送給弟弟的，請「他」不要吃掉。上面句子中的「他」指的是誰？', options: ['媽媽', '弟弟', '哥哥', '爸爸'], answer: 4 },
+            { question: '16. 「火」有下列幾種解釋: 燃燒時的光和熱、動怒、赤紅的、緊急的。下面哪一個句子中的「火」字，有「燃燒時的光和熱」的意思？', options: ['強風一來,把廟裡的燭「火」全都吹熄。', '同樣的錯一犯再犯,會讓他很「火」大。', '傍晚的太陽,把天空染得一片「火」紅。', '接到報案電話,警察「火」速趕往現場。'], answer: 1 },
+            { question: '17. 當他知道自己得獎時，竟然□的在圖書館裡大聲歡呼，所以引起大家的不滿。□適合填入下列哪一個選項？', options: ['過目不忘', '念念不忘', '流連忘返', '得意忘形'], answer: 4 },
+            { question: '18. 勇敢，不是假装不害怕，而是不管別人的嘲笑，依然努力去做對的事。根據上面的句子，我們可以判斷下列哪一個選項是正確的？', options: ['勇敢是假裝不怕人嘲笑。', '勇敢就是不要嘲笑別人。', '勇敢就是要假裝不害怕。', '勇敢是努力去做對的事。'], answer: 4 },
+            { question: '19. 蘋果香甜又營養，怪不得有「一天一蘋果，醫師遠離我」的諺語。上面的句子主要想告訴我們什麼事？', options: ['蘋果是醫師最討厭的水果。', '常吃蘋果會使身體更健康。', '醫師一看到蘋果就會離開。', '身體健康的人都愛吃蘋果。'], answer: 2 },
+            { type: 'article', content: '<p>吃著熱騰騰的火鍋，蓋著曬過太陽的棉被，穿著媽媽編織的蓬鬆毛衣。這些事物所帶來的溫暖，都比不上冬天的夜裡，媽媽用溫柔嗓音在床邊為我們說的故事。</p>'},
+            { question: '20. 這段文字主要想表達的意思是什麼？', options: ['媽媽為我們說故事的聲音很好聽。', '穿著媽媽編織的蓬鬆毛衣很溫暖。', '聽媽媽說故事是冬天裡最溫暖的事。', '媽媽做了很多事來讓我們感到溫暖。'], answer: 3 },
+            { type: 'article', content: '<p>今天早上，我和爸爸一起把回收物品拿去回收場。到了那裡，我看到廢紙和寶特瓶被堆成了小小山，還看到破損的電腦、壞掉的冰箱和老舊的家具。最吸引我的是腳踏車，它們有的輪胎破了，有的缺了腳踏板，有的竟然連座椅都沒有。回收場有許多稀奇古怪的東西，真是讓我大開眼界。</p>'},
+            { question: '21. 下列選項語句都取自上面的段落。哪一個選項最能代表上面整段文字想表達的重點？', options: ['今天早上,我和爸爸一起把回收物品拿去回收場。', '回收場有許多稀奇古怪的東西,真是讓我大開眼界。', '最吸引我的是腳踏車,它們有的輪胎破了,有的缺了腳踏板,有的竟然連座椅都沒有。', '到了那裡,我看到廢紙和寶特瓶被堆成了小山,還看到破損的電腦、壞掉的冰箱和老舊的家具。'], answer: 2 },
+            { type: 'article', title: '老祖先的魔法', content: '<p>很多人羨慕外國小說哈利波特中神奇的魔法和精靈，其實，我們一百多年前的祖先也生活在這樣的世界呢！</p><p>我特別喜歡臺灣古老的「手抄本」，其中最有趣的就是民間家庭中珍藏的「萬用雜記」。一百多年前沒有電腦可以上網查資料，所以生活中遇到各種問題時，只能從這種用手抄寫的「萬用雜記」裡尋找參考答案。</p><p>「萬用雜記」最常出現的內容就是各種藥方（也就是藥單），畢竟當時臺灣沒幾間現代化的醫院，一般人也不見得有錢去看病。於是家裡的「萬用雜記」就會記錄一些急救藥方，萬一感冒發燒，才能到中藥房去抓些藥材回家熬煮，自己醫治。</p><p>這種「萬用雜記」記錄的疾病和治療方法千奇百怪，一般外傷、燙傷、蚊蟲咬傷當然要記，發燒、頭痛、牙疼、腹瀉更不用說，其中又以各種皮膚疾病和它們的紀錄最多。</p><p>我猜，可能是因為以前的人並不一定天天洗澡，就算洗澡也不見得有乾淨的水能沐浴，所以各種皮膚病便不斷出現。人們對於這些病痛困擾不已，因此對於有些就算熬煮中藥來吃也治不好的病，「萬用雜記」中就有一些使用法術來處理的方法。</p><p>例如「皮蛇」，又稱「飛蛇」。這可不是動物，而是現在稱為「帶狀疱疹」的疾病。現在醫學已經知道這是由病毒引起的疾病，但是古代認為這是被蛇精纏身，必須施法術將蛇驅趕，施法術的人一邊念咒，一邊用墨水在疱疹上畫線。這種處理方法，現在聽起來很不可思議，但老一輩有不少人試過這個方法。你可以問問阿公、阿嬤有沒有試過。</p><p>我最感到訝異的是「人面疔」的記載。「萬用雜記」說喝酒過多的人膝蓋上會長出人臉來，令人痛到無法忍受。治療方法是餵這個人面疔吃麝香、冰片等中藥材，這些中藥材都是香氣很重的東西，難道是準備香死它嗎？從這些千奇百怪的手寫紀錄看來，一百多年前，我們的祖先也生活在魔法的世界呢！</p>'},
+            { question: '22. 關於「皮蛇」的敘述，下列哪一個選項是正確的？', options: ['因為喝酒過多造成的', '是由病毒引起的疾病', '到現在仍需作法才能治療', '現代人認為是被蛇精纏身'], answer: 2 },
+            { question: '23. 依據文章內容，用我們現在的角度來看，一百多年前人們會用「施法術驅趕蛇精」和「餵人面疔吃麝香」來治病的主要原因是什麼？', options: ['人們的醫學知識不足。', '這些是醫生教的方法。', '這樣才是正確的做法。', '人們試過都非常有效。'], answer: 1 },
+            { question: '24. 這篇文章主要想告訴我們什麼？', options: ['作者喜歡蒐集古老的手抄本的原因。', '介紹一百年前奇特的疾病治療方法。', '以前的人因為不愛乾淨才得皮膚病。', '家中應該準備好藥材才能早點治療。'], answer: 2 },
+            { type: 'article', title: '瑪麗離家出走了', content: '<p>綿羊瑪麗對自己身上的毛最得意了，每天一定要把身上的毛梳理整齊。農場裡，大家票選瑪麗為農場最漂亮的動物，這讓她更加珍惜身上的毛。</p><p>「有一天，我要去跟有著美麗羽毛的孔雀、有著彩色翅膀的蝴蝶，以及身上有著迷人斑點的梅花鹿比比看，看誰比較漂亮。」瑪麗說。</p><p>綿羊媽媽以為瑪麗只是說著好玩，沒想到剃毛這一天，瑪麗為了保護她身上的毛不被剃掉，竟然離家出走了。離家後，瑪麗在路上看到一隻蝴蝶正在吸花蜜。</p><p>「你好，聽說蝴蝶張開翅膀飛舞的姿態非常美。」</p><p>蝴蝶抬起頭看看瑪麗說：「翅膀讓我能到處飛行，為花兒傳遞花粉，可不是為了展現美麗姿態給大家看的。」</p><p>瑪麗不以為然。美麗有什麼不對？她繼續往前走，遇到了孔雀。</p><p>「哇！在太陽的照射下，你身上的羽毛閃閃發光，難怪圍觀的人們讚不絕口。」</p><p>「豔麗的羽毛是為了吸引異性而傳宗接代，可不是拿來現給別人看的。」</p><p>瑪麗覺得自討無趣。真心讚美孔雀，有錯嗎？孔雀竟不領情。</p><p>接著瑪麗到森林裡找梅花鹿，但是他不在森林裡，瑪麗決定住下來等待。</p><p>這天，瑪麗看到一對父子在森林裡砍柴。</p><p>「爸爸，好冷喔！我們還要多久才能回家？」</p><p>「快了！我把砍下來的柴捆好，就可以趕快回家生火。屋子暖和了，媽媽的病才會好起來。」</p><p>「爸爸，有一隻綿羊在看我們。」</p><p>看小孩冷得全身不停發抖，瑪麗走過去緊靠他。小孩把雙手伸進瑪麗厚長的羊毛裡。</p><p>「爸爸，羊毛好軟好舒服。如果媽媽有一件羊毛做的衣服，就不會冷得生病了。」</p><p>瑪麗沒想到，人們喜歡羊毛的溫暖舒服，而不是羊毛的美麗。瑪麗決定：該回家了。</p><p>回到農場，主人阿明差點認不出瑪麗，因為瑪麗的毛沒剃過，現在活像一顆羊毛圓球。</p><p>「我要把身上這些溫暖又美麗的羊毛拿去做成衣服後，免費送給需要的人。」</p><p>農場主人不斷稱讚瑪麗變得比以前更漂亮、更動人。現在，瑪麗正和綿羊家族一起快樂的在草原上奔跑、打滾，就算身上的毛都剃光了，她卻比以前更加得意。</p>' },
+            { question: '25. 為什麼瑪麗一開始不願意剃掉身上的毛？', options: ['非常害怕寒冷', '喜愛自己的毛', '媽媽不肯讓她剃掉', '主人剃毛技術不好'], answer: 2 },
+            { question: '26. 下列哪一個選項最適合用來說明故事中瑪麗的心境轉變？', options: ['從膽小變成勇敢', '從很漂亮變成很醜', '從不聽話變成聽話', '從愛比較變成有愛心'], answer: 4 },
+            { question: '27. 這篇故事主要的道理是什麼？', options: ['與他人比較時,要保持風度。', '要好好欣賞自己與生俱來的優點。', '願意為他人付出,才是真正的美麗。', '羊毛很柔軟,可以為他人帶來溫暖。'], answer: 3 },
+            { type: 'article', title: '可麗餅大師', content: '<p>今天的森林真是熱鬧，因為森林之王特地邀請了來自遠方國度的可麗餅製作大師松鼠先生，來教授森林居民們製作可麗餅。</p><p>「咳咳！」松鼠大師一手背在身後，一手握拳放在嘴邊，清了清喉嚨：「各位女士、先生，在製作可麗餅之前，請大家看我手中的材料單，準備好之後，我們就要進入今天的課程了。」</p><p style="text-indent: 0; text-align: center;">低筋麵粉......60克<br>無鹽奶油......10克<br>砂糖..................15克<br>蛋......................2顆<br>鹽......................1克<br>牛奶................ 150 c.c.</p><p>「請大家跟著我的步驟進行。首先，將無鹽奶油放在室溫下，讓它自然軟化。第二，在等待奶油融化的時間，把蛋打在容器內，並打勻。第三，在容器內再加入麵粉、牛奶、砂糖、鹽和融化的奶油，輕輕攪拌均勻，這時可麗餅的麵糊就算是製作完成。第四，在平底鍋內抹上一層奶油，打開瓦斯爐，將剛剛製作的麵糊倒進鍋子，讓麵糊均勻的平攤在圓鍋中。第五，看到麵糊的邊緣稍稍呈現褐色，就可以翻面。另一面再煎個幾秒鐘，產生褐色斑點，就可起鍋。」</p><p>「我們已經完成可麗餅的餅皮，是不是很簡單呢！」</p><p>「之後可以根據自己的口味，任意組合內餡。如果想吃甜的，可以在餅皮上抹果醬、糖漿，或是加水果、冰淇淋，再將餅皮捲起來；如果想吃鹹的，可以夾番茄、蔬菜、火腿。不管甜的還是鹹的，都相當美味。」</p><p>「哎呀！怎麼我的可麗餅煎出來竟然這麼厚，不像大師的可麗餅那麼均勻漂亮？」大象小姐嚷著。</p><p>「我的可麗餅怎麼像是餅乾一樣，硬硬脆脆的？根本沒辦法捲起來嘛！」猴子小姐也大聲叫了起來。</p><p>「我的也是！」「我也一樣！」抱怨聲此起彼落。這時松鼠大師又清了清喉嚨：「咳咳！忘了交代各位，煎餅的火候很重要，要用中火來煎，火太大或太小都不行。火太大會讓鍋子過熱，使麵糊一下子就凝固，無法平攤展延開來，做出來的可麗餅自然又厚又不均勻。另外，就是鍋子若是塗了太多的奶油，可麗餅就會油油的，變成可麗餅乾。」</p><p>唉！這麼重要的訣竅怎麼不早說呀！</p>' },
+            { question: '28. 根據故事內容，大象小姐的可麗餅為什麼會失敗？', options: ['火太小', '火太大', '油太少', '油太多'], answer: 2 },
+            { question: '29. 下列哪一個小朋友讀出這個故事的重點？', options: ['英英：「這篇故事在介紹可麗餅各種口味。」', '阿義：「我覺得是在說誰最喜歡吃可麗餅。」', '小明：「我認為作者在說誰最會做可麗餅。」', '小欣：「我覺得是教我們如何製作可麗餅。」'], answer: 4 },
+            { question: '30. 這篇故事最想告訴我們什麼道理？', options: ['做事要注意細節,才會成功。', '只要注重結果,不要管過程。', '要掌握祕方,就能無師自通。', '只要小心謹慎,就不會失敗。'], answer: 1 },
+        ];
+        
+        let userAnswers = {};
+        let questionElements = [];
+
+        // Function to build the quiz
+        function buildQuiz() {
+            let questionCounter = 0;
+            quizData.forEach((item, index) => {
+                if (item.type === 'header') {
+                    const header = document.createElement('h2');
+                    header.className = 'text-xl md:text-2xl font-bold text-blue-700 mt-8 mb-4 border-l-4 border-blue-700 pl-4';
+                    header.textContent = item.content;
+                    quizContainer.appendChild(header);
+                } else if (item.type === 'article') {
+                    const articleDiv = document.createElement('div');
+                    articleDiv.className = 'article-box';
+                    if (item.title) {
+                       articleDiv.innerHTML += `<h3>${item.title}</h3>`;
+                    }
+                    articleDiv.innerHTML += item.content;
+                    quizContainer.appendChild(articleDiv);
+                } else if (item.question) {
+                    questionCounter++;
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'bg-white p-6 rounded-xl shadow-md question-group';
+                    questionDiv.id = `question-${questionCounter-1}`;
+
+                    const questionTitle = document.createElement('p');
+                    questionTitle.className = 'text-lg font-semibold mb-4';
+                    const questionText = item.question.replace(/^\d+\.\s*/, '');
+                    questionTitle.innerHTML = `${questionCounter}. ${questionText}`;
+                    questionDiv.appendChild(questionTitle);
+
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'space-y-3';
+
+                    item.options.forEach((option, optionIndex) => {
+                        const label = document.createElement('label');
+                        label.className = 'flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer';
+                        
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `question${questionCounter-1}`;
+                        radio.value = optionIndex + 1;
+                        radio.className = 'h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300';
+                        
+                        const span = document.createElement('span');
+                        span.className = 'ml-3 text-gray-700';
+                        span.textContent = `(${optionIndex + 1}) ${option}`;
+
+                        label.appendChild(radio);
+                        label.appendChild(span);
+                        optionsDiv.appendChild(label);
+                    });
+
+                    questionDiv.appendChild(optionsDiv);
+                    quizContainer.appendChild(questionDiv);
+                    questionElements.push(item);
+                }
+            });
+        }
+        
+        // Function to handle form submission
+        function submitQuiz(e) {
+            e.preventDefault();
+
+            const studentClass = document.getElementById('student-class').value.trim();
+            const studentName = document.getElementById('student-name').value.trim();
+
+            if (!studentClass || !studentName) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-2xl text-center">
+                        <p class="text-lg font-semibold mb-4">請先填寫班級和姓名！</p>
+                        <button onclick="this.parentElement.parentElement.remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">好的</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                return;
+            }
+
+            let score = 0;
+            userAnswers = {};
+
+            questionElements.forEach((item, index) => {
+                const selectedOption = form.querySelector(`input[name="question${index}"]:checked`);
+                const questionGroup = document.getElementById(`question-${index}`);
+
+                if (selectedOption) {
+                    const answer = parseInt(selectedOption.value);
+                    userAnswers[index] = answer;
+                    if (answer === item.answer) {
+                        score++;
+                        questionGroup.classList.add('correct');
+                        questionGroup.classList.remove('incorrect');
+                    } else {
+                        questionGroup.classList.add('incorrect');
+                        questionGroup.classList.remove('correct');
+                    }
+                } else {
+                    userAnswers[index] = '未作答';
+                    questionGroup.classList.add('incorrect');
+                    questionGroup.classList.remove('correct');
+                }
+            });
+
+            const totalQuestions = questionElements.length;
+            const finalScore = Math.round((score / totalQuestions) * 100);
+
+            scoreEl.textContent = `${finalScore} 分`;
+            summaryEl.textContent = `答對 ${score} 題，共 ${totalQuestions} 題。`;
+
+            studentInfoContainer.classList.add('hidden');
+            form.querySelector('button[type="submit"]').parentElement.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Function to generate and open a printable report
+        function generateReportPage() {
+            const studentClass = document.getElementById('student-class').value.trim();
+            const studentName = document.getElementById('student-name').value.trim();
+            
+            let incorrectQuestionsHTML = '';
+            let questionCounter = 0;
+            questionElements.forEach((item, index) => {
+                questionCounter++;
+                const userAnswer = userAnswers[index];
+                if (userAnswer !== item.answer) {
+                    const questionText = item.question.replace(/<br>/g, '\n').replace(/^\d+\.\s*/, '');
+                    const userAnswerText = userAnswer !== '未作答' ? item.options[userAnswer - 1] : '未作答';
+                    incorrectQuestionsHTML += `
+                        <div class="question-item">
+                            <p class="question-title"><strong>第 ${questionCounter} 題:</strong> ${questionText}</p>
+                            <p>你的答案: (${userAnswer}) ${userAnswerText}</p>
+                        </div>
+                    `;
+                }
+            });
+
+            const reportHTML = `
+                <html>
+                <head>
+                    <title>測驗結果報告</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Noto Sans TC', sans-serif; padding: 2rem; color: #333; }
+                        .container { max-width: 800px; margin: auto; }
+                        h1, h2 { text-align: center; color: #1e3a8a; }
+                        .info, .score-summary { border-bottom: 2px solid #ccc; padding-bottom: 1rem; margin-bottom: 1rem; }
+                        .info p, .score-summary p { font-size: 1.2rem; margin: 0.5rem 0; }
+                        .instructions { text-align: center; padding: 1rem; background-color: #f3f4f6; border-radius: 8px; margin-bottom: 2rem; }
+                        .errors-list h3 { color: #b91c1c; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem; }
+                        .question-item { margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid #ef4444; }
+                        .question-title { margin-bottom: 0.5rem; }
+                        @media print {
+                            .instructions { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>三年級國語文科 測驗報告</h1>
+                        <div class="instructions">
+                            <p>請使用瀏覽器的列印功能 (Ctrl+P 或 Cmd+P) 將此報告儲存為 PDF 檔案。</p>
+                        </div>
+                        <div class="info">
+                            <p><strong>班級:</strong> ${studentClass}</p>
+                            <p><strong>姓名:</strong> ${studentName}</p>
+                        </div>
+                        <div class="score-summary">
+                            <h2>總成績: ${scoreEl.textContent}</h2>
+                            <p>${summaryEl.textContent}</p>
+                        </div>
+                        <div class="errors-list">
+                            <h3>錯誤題目列表</h3>
+                            ${incorrectQuestionsHTML || '<p>恭喜你，全部答對了！</p>'}
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(reportHTML);
+            reportWindow.document.close();
+        }
+
+        // Function to reset the quiz
+        function retryQuiz() {
+            // Show quiz and student info sections
+            studentInfoContainer.classList.remove('hidden');
+            form.classList.remove('hidden');
+            
+            // Show the submit button again
+            form.querySelector('button[type="submit"]').parentElement.classList.remove('hidden');
+            
+            // Hide results section
+            resultsContainer.classList.add('hidden');
+            
+            // Clear all radio button selections
+            const allRadios = form.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => radio.checked = false);
+
+            // Reset question styles
+            const allQuestionGroups = form.querySelectorAll('.question-group');
+            allQuestionGroups.forEach(group => {
+                group.classList.remove('correct', 'incorrect');
+            });
+            
+            // Scroll to the top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', buildQuiz);
+        form.addEventListener('submit', submitQuiz);
+        downloadBtn.addEventListener('click', generateReportPage);
+        retryBtn.addEventListener('click', retryQuiz);
+
+    </script>
+</body>
+</html>
