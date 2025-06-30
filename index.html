@@ -9,40 +9,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            line-height: 1.8;
-        }
-        .question-group {
-            border-left: 4px solid #e5e7eb; /* default border */
-            transition: border-color 0.3s;
-        }
-        .correct {
-            border-color: #22c55e; /* green-500 */
-        }
-        .incorrect {
-            border-color: #ef4444; /* red-500 */
-        }
-        .article-box {
-            background-color: #f3f4f6; /* gray-100 */
-            border-left: 4px solid #3b82f6; /* blue-500 */
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 0.75rem;
-        }
-        .article-box h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #1e3a8a; /* blue-900 */
-        }
-        .article-box p {
-            text-indent: 2em;
-            margin-bottom: 0.5rem;
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; line-height: 1.8; }
+        .question-group { border-left: 4px solid #e5e7eb; transition: border-color 0.3s; }
+        .correct { border-color: #22c55e; }
+        .incorrect { border-color: #ef4444; }
+        .article-box { background-color: #f3f4f6; border-left: 4px solid #3b82f6; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 0.75rem; }
+        .article-box h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #1e3a8a; }
+        .article-box h4 { font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1d4ed8; }
+        .article-box p { text-indent: 2em; margin-bottom: 0.5rem; }
+        #teacher-panel, #password-modal { display: none; } /* 預設隱藏 */
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4">教師登入</h3>
+            <p class="text-sm text-gray-600 mb-4">請輸入密碼以查看作答紀錄。</p>
+            <input type="password" id="password-input" class="w-full p-2 border border-gray-300 rounded-lg mb-4" placeholder="請輸入密碼...">
+            <div class="flex justify-end gap-3">
+                <button id="password-cancel-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">取消</button>
+                <button id="password-submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">確認</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center bg-white p-6 rounded-xl shadow-md mb-8">
@@ -52,7 +43,7 @@
 
         <!-- Student Info Section -->
         <div id="student-info" class="bg-white p-6 rounded-xl shadow-md mb-8">
-            <h2 class="text-xl font-bold mb-4 border-b pb-2">考生資訊</h2>
+             <h2 class="text-xl font-bold mb-4 border-b pb-2">考生資訊</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="student-class" class="block text-sm font-medium text-gray-700 mb-1">班級</label>
@@ -68,10 +59,10 @@
         <!-- Quiz Form -->
         <form id="quiz-form">
             <div id="quiz-container" class="space-y-6">
-                <!-- Questions will be injected here by JavaScript -->
+                <!-- Questions injected by JS -->
             </div>
             <div class="mt-8 text-center">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                <button type="submit" id="submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
                     送出測驗
                 </button>
             </div>
@@ -82,6 +73,7 @@
             <h2 class="text-2xl font-bold text-center mb-4">測驗結果</h2>
             <div id="score" class="text-4xl font-bold text-center text-blue-700 mb-2"></div>
             <div id="summary" class="text-center text-lg mb-8"></div>
+            <div id="db-status" class="text-center text-sm text-gray-500 mb-6"></div>
             <div class="flex justify-center items-center gap-4">
                  <button id="download-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
                     下載錯誤報告 (PDF)
@@ -91,9 +83,59 @@
                 </button>
             </div>
         </div>
+        
+        <!-- Teacher Login Button -->
+        <div id="teacher-login-container" class="text-center mt-12 border-t pt-8">
+            <button id="teacher-login-btn" class="text-blue-600 hover:underline">教師登入</button>
+        </div>
+
+        <!-- Teacher Panel -->
+        <div id="teacher-panel" class="mt-8 bg-white p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">教師後台 - 三年級作答紀錄</h2>
+                <button id="export-csv-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                    匯出為 Excel (CSV)
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作答時間</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">班級</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分數</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Results will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5yiDVFaIKOJ-UKIqEKpwftxhEQ8SSBmM",
+            authDomain: "th-chinese-1.firebaseapp.com",
+            projectId: "th-chinese-1",
+            storageBucket: "th-chinese-1.appspot.com",
+            messagingSenderId: "740688157010",
+            appId: "1:740688157010:web:ce56f965bbebf3fea5428b",
+            measurementId: "G-HWCCCX2XF2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- All DOM elements ---
         const quizContainer = document.getElementById('quiz-container');
         const form = document.getElementById('quiz-form');
         const resultsContainer = document.getElementById('results');
@@ -102,6 +144,17 @@
         const downloadBtn = document.getElementById('download-btn');
         const retryBtn = document.getElementById('retry-btn');
         const studentInfoContainer = document.getElementById('student-info');
+        const dbStatusEl = document.getElementById('db-status');
+        const teacherLoginBtn = document.getElementById('teacher-login-btn');
+        const teacherPanel = document.getElementById('teacher-panel');
+        const resultsTableBody = document.getElementById('results-table-body');
+        const submitBtn = document.getElementById('submit-btn');
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmitBtn = document.getElementById('password-submit-btn');
+        const passwordCancelBtn = document.getElementById('password-cancel-btn');
+
 
         const quizData = [
             { type: 'header', content: '一、語文知識題' },
@@ -138,7 +191,7 @@
             { question: '25. 為什麼瑪麗一開始不願意剃掉身上的毛？', options: ['非常害怕寒冷', '喜愛自己的毛', '媽媽不肯讓她剃掉', '主人剃毛技術不好'], answer: 2 },
             { question: '26. 下列哪一個選項最適合用來說明故事中瑪麗的心境轉變？', options: ['從膽小變成勇敢', '從很漂亮變成很醜', '從不聽話變成聽話', '從愛比較變成有愛心'], answer: 4 },
             { question: '27. 這篇故事主要的道理是什麼？', options: ['與他人比較時,要保持風度。', '要好好欣賞自己與生俱來的優點。', '願意為他人付出,才是真正的美麗。', '羊毛很柔軟,可以為他人帶來溫暖。'], answer: 3 },
-            { type: 'article', title: '可麗餅大師', content: '<p>今天的森林真是熱鬧，因為森林之王特地邀請了來自遠方國度的可麗餅製作大師松鼠先生，來教授森林居民們製作可麗餅。</p><p>「咳咳！」松鼠大師一手背在身後，一手握拳放在嘴邊，清了清喉嚨：「各位女士、先生，在製作可麗餅之前，請大家看我手中的材料單，準備好之後，我們就要進入今天的課程了。」</p><p style="text-indent: 0; text-align: center;">低筋麵粉......60克<br>無鹽奶油......10克<br>砂糖..................15克<br>蛋......................2顆<br>鹽......................1克<br>牛奶................ 150 c.c.</p><p>「請大家跟著我的步驟進行。首先，將無鹽奶油放在室溫下，讓它自然軟化。第二，在等待奶油融化的時間，把蛋打在容器內，並打勻。第三，在容器內再加入麵粉、牛奶、砂糖、鹽和融化的奶油，輕輕攪拌均勻，這時可麗餅的麵糊就算是製作完成。第四，在平底鍋內抹上一層奶油，打開瓦斯爐，將剛剛製作的麵糊倒進鍋子，讓麵糊均勻的平攤在圓鍋中。第五，看到麵糊的邊緣稍稍呈現褐色，就可以翻面。另一面再煎個幾秒鐘，產生褐色斑點，就可起鍋。」</p><p>「我們已經完成可麗餅的餅皮，是不是很簡單呢！」</p><p>「之後可以根據自己的口味，任意組合內餡。如果想吃甜的，可以在餅皮上抹果醬、糖漿，或是加水果、冰淇淋，再將餅皮捲起來；如果想吃鹹的，可以夾番茄、蔬菜、火腿。不管甜的還是鹹的，都相當美味。」</p><p>「哎呀！怎麼我的可麗餅煎出來竟然這麼厚，不像大師的可麗餅那麼均勻漂亮？」大象小姐嚷著。</p><p>「我的可麗餅怎麼像是餅乾一樣，硬硬脆脆的？根本沒辦法捲起來嘛！」猴子小姐也大聲叫了起來。</p><p>「我的也是！」「我也一樣！」抱怨聲此起彼落。這時松鼠大師又清了清喉嚨：「咳咳！忘了交代各位，煎餅的火候很重要，要用中火來煎，火太大或太小都不行。火太大會讓鍋子過熱，使麵糊一下子就凝固，無法平攤展延開來，做出來的可麗餅自然又厚又不均勻。另外，就是鍋子若是塗了太多的奶油，可麗餅就會油油的，變成可麗餅乾。」</p><p>唉！這麼重要的訣竅怎麼不早說呀！</p>' },
+            { type: 'article', title: '可麗餅大師', content: '<p>今天的森林真是熱鬧，因為森林之王特地邀請了來自遠方國度的可麗餅製作大師松鼠先生，來教授森林居民們製作可麗餅。</p><p>「咳咳！」松鼠大師一手背在身後，一手握拳放在嘴邊，清了清喉嚨：「各位女士、先生，在製作可麗餅之前，請大家看我手中的材料單，準備好之後，我們就要進入今天的課程了。」</p><p style="text-indent: 0; text-align: center;">低筋麵粉......60克<br>無鹽奶油......10克<br>砂糖..................15克<br>蛋......................2顆<br>鹽......................1克<br>牛奶................ 150 c.c.</p><p>「請大家跟著我的步驟進行。首先，將無鹽奶油放在室溫下，讓它自然軟化。第二，在等待奶油融化的時間，把蛋打在容器內，並打勻。第三，在容器內再加入麵粉、牛奶、砂糖、鹽和融化的奶油，輕輕攪拌均勻，這時可麗餅的麵糊就算是製作完成。第四，在平底鍋內抹上一層奶油，打開瓦斯爐，將剛剛製作的麵糊倒進鍋子，讓麵糊均勻的平攤在圓鍋中。第五，看到麵糊的邊緣稍稍呈現褐色，就可以翻面。另一面再煎個幾秒鐘，產生褐色斑點，就可起鍋。」</p><p>「我們已經完成可麗餅的餅皮，是不是很簡單呢！」</p><p>「之後可以根據自己的口味，任意組合內餡。如果想吃甜的，可以在餅皮上抹果醬、糖漿，或是加水果、冰淇淋，再將餅皮捲起來；如果想吃鹹的，可以夾番茄、蔬菜、火腿。不管甜的還是鹹的，都相當美味。」</p><p>「哎呀！怎麼我的可麗餅煎出來竟然這麼厚，不像大師的可麗餅那麼均勻漂亮？」大象小姐嚷著。</p><p>「我的可麗餅怎麼像是餅乾一樣，硬硬脆脆的？根本沒辦法捲起來嘛！」猴子小姐也大聲叫了起來。</p><p>「我的也是！」「我也一樣！」抱怨聲此起彼落。這時松鼠大師又清了清喉嚨：「咳咳！忘了交代各位，煎餅的火候很重要，要用中火來煎，火太大或太小都不行。火太大會讓鍋子過熱，使麵糊一下子就凝固，無法平攤展延開來，做出來的可麗餅自然又厚又不均勻。另外，就是鍋子若是塗了太多的奶油，可麗餅就會油油的，變成可麗餅乾。」</p><p>唉！這麼重要的訣竅怎麼不早說呀！</p>'},
             { question: '28. 根據故事內容，大象小姐的可麗餅為什麼會失敗？', options: ['火太小', '火太大', '油太少', '油太多'], answer: 2 },
             { question: '29. 下列哪一個小朋友讀出這個故事的重點？', options: ['英英：「這篇故事在介紹可麗餅各種口味。」', '阿義：「我覺得是在說誰最喜歡吃可麗餅。」', '小明：「我認為作者在說誰最會做可麗餅。」', '小欣：「我覺得是教我們如何製作可麗餅。」'], answer: 4 },
             { question: '30. 這篇故事最想告訴我們什麼道理？', options: ['做事要注意細節,才會成功。', '只要注重結果,不要管過程。', '要掌握祕方,就能無師自通。', '只要小心謹慎,就不會失敗。'], answer: 1 },
@@ -147,10 +200,18 @@
         let userAnswers = {};
         let questionElements = [];
 
-        // Function to build the quiz
-        function buildQuiz() {
+        function buildQuiz() { /* ... implementation ... */ }
+        async function submitQuiz(e) { /* ... implementation ... */ }
+        function generateReportPage() { /* ... implementation ... */ }
+        function retryQuiz() { /* ... implementation ... */ }
+        async function showTeacherPanel() { /* ... implementation ... */ }
+        async function exportToCsv() { /* ... implementation ... */ }
+
+        // --- Implementation of functions ---
+        
+        buildQuiz = function() {
             let questionCounter = 0;
-            quizData.forEach((item, index) => {
+            quizData.forEach((item) => {
                 if (item.type === 'header') {
                     const header = document.createElement('h2');
                     header.className = 'text-xl md:text-2xl font-bold text-blue-700 mt-8 mb-4 border-l-4 border-blue-700 pl-4';
@@ -203,27 +264,21 @@
                     questionElements.push(item);
                 }
             });
-        }
+        };
         
-        // Function to handle form submission
-        function submitQuiz(e) {
+        submitQuiz = async function(e) {
             e.preventDefault();
 
             const studentClass = document.getElementById('student-class').value.trim();
             const studentName = document.getElementById('student-name').value.trim();
 
             if (!studentClass || !studentName) {
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-white p-8 rounded-lg shadow-2xl text-center">
-                        <p class="text-lg font-semibold mb-4">請先填寫班級和姓名！</p>
-                        <button onclick="this.parentElement.parentElement.remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">好的</button>
-                    </div>
-                `;
-                document.body.appendChild(modal);
+                alert('請先填寫班級和姓名！');
                 return;
             }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '計算中...';
 
             let score = 0;
             userAnswers = {};
@@ -234,137 +289,256 @@
 
                 if (selectedOption) {
                     const answer = parseInt(selectedOption.value);
-                    userAnswers[index] = answer;
+                    userAnswers[index+1] = answer;
                     if (answer === item.answer) {
                         score++;
                         questionGroup.classList.add('correct');
-                        questionGroup.classList.remove('incorrect');
                     } else {
                         questionGroup.classList.add('incorrect');
-                        questionGroup.classList.remove('correct');
                     }
                 } else {
-                    userAnswers[index] = '未作答';
+                    userAnswers[index+1] = '未作答';
                     questionGroup.classList.add('incorrect');
-                    questionGroup.classList.remove('correct');
                 }
             });
 
             const totalQuestions = questionElements.length;
             const finalScore = Math.round((score / totalQuestions) * 100);
 
+            dbStatusEl.textContent = '正在儲存作答紀錄...';
+            try {
+                // Use a different collection for Grade 3 results
+                await addDoc(collection(db, "results_grade_3"), {
+                    studentClass: studentClass,
+                    studentName: studentName,
+                    score: finalScore,
+                    correctCount: score,
+                    totalQuestions: totalQuestions,
+                    answers: userAnswers,
+                    timestamp: new Date()
+                });
+                dbStatusEl.textContent = '作答紀錄已成功儲存！';
+                dbStatusEl.style.color = 'green';
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                dbStatusEl.textContent = '作答紀錄儲存失敗，請檢查網路連線或Firebase設定。';
+                dbStatusEl.style.color = 'red';
+            }
+
             scoreEl.textContent = `${finalScore} 分`;
             summaryEl.textContent = `答對 ${score} 題，共 ${totalQuestions} 題。`;
 
             studentInfoContainer.classList.add('hidden');
-            form.querySelector('button[type="submit"]').parentElement.classList.add('hidden');
+            form.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
             
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
-        }
+        };
 
-        // Function to generate and open a printable report
-        function generateReportPage() {
-            const studentClass = document.getElementById('student-class').value.trim();
+        generateReportPage = function() {
+             const studentClass = document.getElementById('student-class').value.trim();
             const studentName = document.getElementById('student-name').value.trim();
             
             let incorrectQuestionsHTML = '';
             let questionCounter = 0;
             questionElements.forEach((item, index) => {
                 questionCounter++;
-                const userAnswer = userAnswers[index];
+                const userAnswerKey = index + 1;
+                const userAnswer = userAnswers[userAnswerKey];
                 if (userAnswer !== item.answer) {
                     const questionText = item.question.replace(/<br>/g, '\n').replace(/^\d+\.\s*/, '');
-                    const userAnswerText = userAnswer !== '未作答' ? item.options[userAnswer - 1] : '未作答';
+                    const userAnswerText = (userAnswer !== '未作答' && userAnswer) ? item.options[userAnswer - 1] : '未作答';
                     incorrectQuestionsHTML += `
-                        <div class="question-item">
-                            <p class="question-title"><strong>第 ${questionCounter} 題:</strong> ${questionText}</p>
+                        <div style="margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid #ef4444;">
+                            <p style="margin-bottom: 0.5rem;"><strong>第 ${questionCounter} 題:</strong> ${questionText}</p>
                             <p>你的答案: (${userAnswer}) ${userAnswerText}</p>
-                        </div>
-                    `;
+                        </div>`;
                 }
             });
 
             const reportHTML = `
                 <html>
-                <head>
-                    <title>測驗結果報告</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-                    <style>
-                        body { font-family: 'Noto Sans TC', sans-serif; padding: 2rem; color: #333; }
-                        .container { max-width: 800px; margin: auto; }
-                        h1, h2 { text-align: center; color: #1e3a8a; }
-                        .info, .score-summary { border-bottom: 2px solid #ccc; padding-bottom: 1rem; margin-bottom: 1rem; }
-                        .info p, .score-summary p { font-size: 1.2rem; margin: 0.5rem 0; }
-                        .instructions { text-align: center; padding: 1rem; background-color: #f3f4f6; border-radius: 8px; margin-bottom: 2rem; }
-                        .errors-list h3 { color: #b91c1c; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem; }
-                        .question-item { margin-bottom: 1.5rem; padding-left: 1rem; border-left: 3px solid #ef4444; }
-                        .question-title { margin-bottom: 0.5rem; }
-                        @media print {
-                            .instructions { display: none; }
-                        }
-                    </style>
-                </head>
+                <head><title>測驗結果報告</title><style>body { font-family: 'Noto Sans TC', sans-serif; padding: 2rem; } h1, h2 { text-align: center; } .info, .score-summary { border-bottom: 2px solid #ccc; padding-bottom: 1rem; margin-bottom: 1rem; }</style></head>
                 <body>
-                    <div class="container">
-                        <h1>三年級國語文科 測驗報告</h1>
-                        <div class="instructions">
-                            <p>請使用瀏覽器的列印功能 (Ctrl+P 或 Cmd+P) 將此報告儲存為 PDF 檔案。</p>
-                        </div>
-                        <div class="info">
-                            <p><strong>班級:</strong> ${studentClass}</p>
-                            <p><strong>姓名:</strong> ${studentName}</p>
-                        </div>
-                        <div class="score-summary">
-                            <h2>總成績: ${scoreEl.textContent}</h2>
-                            <p>${summaryEl.textContent}</p>
-                        </div>
-                        <div class="errors-list">
-                            <h3>錯誤題目列表</h3>
-                            ${incorrectQuestionsHTML || '<p>恭喜你，全部答對了！</p>'}
-                        </div>
-                    </div>
+                    <h1>三年級國語文科 測驗報告</h1>
+                    <div class="info"><p><strong>班級:</strong> ${studentClass}</p><p><strong>姓名:</strong> ${studentName}</p></div>
+                    <div class="score-summary"><h2>總成績: ${scoreEl.textContent}</h2><p>${summaryEl.textContent}</p></div>
+                    <div><h3>錯誤題目列表</h3>${incorrectQuestionsHTML || '<p>恭喜你，全部答對了！</p>'}</div>
                 </body>
-                </html>
-            `;
+                </html>`;
             
             const reportWindow = window.open('', '_blank');
             reportWindow.document.write(reportHTML);
             reportWindow.document.close();
-        }
+        };
 
-        // Function to reset the quiz
-        function retryQuiz() {
-            // Show quiz and student info sections
+        retryQuiz = function() {
             studentInfoContainer.classList.remove('hidden');
             form.classList.remove('hidden');
-            
-            // Show the submit button again
-            form.querySelector('button[type="submit"]').parentElement.classList.remove('hidden');
-            
-            // Hide results section
             resultsContainer.classList.add('hidden');
+            form.reset();
+            submitBtn.disabled = false;
+            submitBtn.textContent = '送出測驗';
             
-            // Clear all radio button selections
-            const allRadios = form.querySelectorAll('input[type="radio"]');
-            allRadios.forEach(radio => radio.checked = false);
-
-            // Reset question styles
-            const allQuestionGroups = form.querySelectorAll('.question-group');
-            allQuestionGroups.forEach(group => {
+            document.querySelectorAll('.question-group').forEach(group => {
                 group.classList.remove('correct', 'incorrect');
             });
             
-            // Scroll to the top of the page
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        };
+
+        showTeacherPanel = async function() {
+            // This function is now just for fetching and displaying data
+            teacherPanel.style.display = 'block';
+            teacherPanel.scrollIntoView({ behavior: 'smooth' });
+            
+            resultsTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">正在載入紀錄...</td></tr>';
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "results_grade_3"));
+                resultsTableBody.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    resultsTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">目前沒有任何作答紀錄。</td></tr>';
+                    return;
+                }
+
+                const records = [];
+                querySnapshot.forEach((doc) => {
+                    records.push(doc.data());
+                });
+                
+                records.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+
+                records.forEach(data => {
+                    const date = data.timestamp.toDate();
+                    const formattedDate = `${date.getFullYear()}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getDate().toString().padStart(2,'0')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
+                    
+                    const row = `<tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${formattedDate}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.studentClass}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.studentName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${data.score}</td>
+                    </tr>`;
+                    resultsTableBody.innerHTML += row;
+                });
+
+            } catch (error) {
+                console.error("Error getting documents: ", error);
+                resultsTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">讀取紀錄失敗，請檢查網路連線或Firebase設定。</td></tr>';
+            }
+        };
+        
+        // --- NEW LOGIC FOR PASSWORD MODAL ---
+        const handleLogin = function() {
+            // TODO: 請在此處修改您的教師後台登入密碼
+            const correctPassword = "pingking1@";
+            const enteredPassword = passwordInput.value;
+
+            if (enteredPassword === correctPassword) {
+                passwordModal.style.display = 'none'; // Hide modal
+                passwordInput.value = ''; // Clear input
+                showTeacherPanel(); // Proceed to show data
+            } else {
+                alert("密碼錯誤！");
+                passwordInput.value = '';
+            }
+        };
+
+        teacherLoginBtn.addEventListener('click', () => {
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+        });
+
+        passwordCancelBtn.addEventListener('click', () => {
+            passwordModal.style.display = 'none';
+            passwordInput.value = '';
+        });
+
+        passwordSubmitBtn.addEventListener('click', handleLogin);
+        
+        // Allow submitting with Enter key
+        passwordInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                handleLogin();
+            }
+        });
 
 
-        // Event Listeners
+        exportToCsv = async function() {
+            try {
+                // 1. Fetch all data from Firestore
+                const querySnapshot = await getDocs(collection(db, "results_grade_3"));
+                if (querySnapshot.empty) {
+                    alert("目前沒有任何作答紀錄可匯出。");
+                    return;
+                }
+
+                const records = [];
+                querySnapshot.forEach((doc) => {
+                    records.push(doc.data());
+                });
+                
+                // Sort by timestamp, newest first
+                records.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+
+                // 2. Prepare CSV content
+                let csvContent = "";
+
+                // Create header row
+                const headers = ["作答時間", "班級", "姓名", "分數", "答對題數"];
+                const totalQuestions = questionElements.length;
+                for (let i = 1; i <= totalQuestions; i++) {
+                    headers.push(`第${i}題答案`);
+                }
+                csvContent += headers.join(',') + '\r\n';
+
+                // Create data rows
+                records.forEach(record => {
+                    const date = record.timestamp.toDate();
+                    const formattedDate = `${date.getFullYear()}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getDate().toString().padStart(2,'0')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
+                    
+                    let row = [
+                        `"${formattedDate}"`, // Enclose in quotes to handle potential commas
+                        `"${record.studentClass}"`,
+                        `"${record.studentName}"`,
+                        record.score,
+                        record.correctCount
+                    ];
+
+                    for (let i = 1; i <= totalQuestions; i++) {
+                        row.push(record.answers[i] || "未作答");
+                    }
+                    csvContent += row.join(',') + '\r\n';
+                });
+
+                // 3. Trigger download
+                // Prepend BOM for Excel to recognize UTF-8
+                const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); 
+                const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                if (link.download !== undefined) { 
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", "三年級國語文作答紀錄.csv");
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
+            } catch (error) {
+                console.error("無法匯出CSV: ", error);
+                alert("匯出紀錄失敗，請檢查Firebase設定與網路連線。");
+            }
+        };
+
+
         document.addEventListener('DOMContentLoaded', buildQuiz);
         form.addEventListener('submit', submitQuiz);
         downloadBtn.addEventListener('click', generateReportPage);
         retryBtn.addEventListener('click', retryQuiz);
+        exportCsvBtn.addEventListener('click', exportToCsv);
 
     </script>
 </body>
